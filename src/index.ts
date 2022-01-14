@@ -29,14 +29,46 @@ const getLatest = async (): Promise<number | Error> => {
     return id ? parseInt(id) : new Error("Couldn't find id")
 }
 
-const getNhentai = async (id: number): Promise<string | Error> => {
+const getNhentai = async (id: number): Promise<number | Error> => {
     const hentai: string = await fetch(
         `https://nhentai.net/api/gallery/${id}`
     ).then((res) => res.text())
 
     if (!hentai.startsWith('{"id"')) return new Error('Not found')
 
-    return hentai
+    return +hentai
+}
+
+const estimateTime = ({
+    since,
+    current,
+    total
+}: {
+    since: number
+    current: number
+    total: number
+}) => (((performance.now() - since) / current) * (total - current)) / 1000
+
+const formatDisplayTime = (time: number) => {
+    let seconds = ~~time
+    let minutes = 0
+    let hours = 0
+
+    while (seconds >= 3600) {
+        seconds -= 3600
+        hours += 1
+    }
+
+    while (seconds >= 60) {
+        seconds -= 60
+        minutes += 1
+    }
+
+    if (hours) return `${hours}h ${minutes}m ${seconds}s`
+
+    if (minutes) return `${minutes}m ${seconds}s`
+
+    return `${seconds}s`
 }
 
 const main = async () => {
@@ -65,16 +97,24 @@ const main = async () => {
                 return
             }
 
-            writeFileSync(`data/${i}.json`, hentai)
+            writeFileSync(`data/${i}.json`, hentai.toString())
         })
 
         // For GH Action use 1.5s, local use 0.625s
-        queue.add(() => new Promise((resolve) => setTimeout(resolve, 1500)))
+        queue.add(() => new Promise((resolve) => setTimeout(resolve, 1250)))
     }
 
     const progress = setInterval(() => {
         console.log(
-            `(${((current / total) * 100).toFixed(4)}%) | ${current}/${total}`
+            `(${((current / total) * 100).toFixed(
+                4
+            )}%) | ${current}/${total} | Estimate time left: ${formatDisplayTime(
+                estimateTime({
+                    current,
+                    total,
+                    since
+                })
+            )}`
         )
     }, 10000)
 
