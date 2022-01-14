@@ -68,7 +68,8 @@ const main = async () => {
             writeFileSync(`data/${i}.json`, hentai)
         })
 
-        queue.add(() => new Promise((resolve) => setTimeout(resolve, 850)))
+        // For GH Action use 1.5s, local use 0.625s
+        queue.add(() => new Promise((resolve) => setTimeout(resolve, 1500)))
     }
 
     const progress = setInterval(() => {
