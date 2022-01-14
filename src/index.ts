@@ -125,7 +125,7 @@ const main = async () => {
             )}%) | ${current}/${end} | Estimate time left: ${formatDisplayTime(
                 estimateTime({
                     current,
-                    total,
+                    total: end,
                     since
                 })
             )}`
