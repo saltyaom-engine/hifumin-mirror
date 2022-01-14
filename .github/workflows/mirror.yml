@@ -11,7 +11,6 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
         # Set N number of parallel jobs you want to run tests on.
         # Use higher number if you have slow tests to split them on more parallel jobs.
@@ -45,10 +44,10 @@ jobs:
           WORKER_INDEX: ${{ matrix.ci_node_index }}
 
       - name: Push
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: generated # The branch name where you want to push the assets
-          FOLDER: data # The directory where your assets are generated
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
-          MESSAGE: "Build: ({sha}) {msg}" # The commit message
+        run: |
+          git config --global user.name 'saltyaom-engine'
+          git config --global user.email 'saltyaom-engine@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git checkout "${GITHUB_REF:11}"
+          git commit -am "mirror"
+          git push origin generated

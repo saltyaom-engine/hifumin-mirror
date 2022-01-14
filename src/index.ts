@@ -79,8 +79,8 @@ const batch = (
 ) => {
     const totalWorker = +(process.env?.WORKER_COUNT ?? 1)
 
-    const start = ((batch - 1) * total) / totalWorker + 1
-    const end = (batch * total) / totalWorker
+    const start = Math.floor(((batch - 1) * total) / totalWorker + 1)
+    const end = Math.floor((batch * total) / totalWorker)
 
     return { start, end }
 }
@@ -93,12 +93,12 @@ const main = async () => {
         process.exit(1)
     }
 
-    console.log('Total:', total)
+    const { start, end } = batch(total)
+    console.log(`${total} total, worker: ${start} - ${end}`)
 
     if (!existsSync('data')) mkdirSync('data')
 
     const since = performance.now()
-    const { start, end } = batch(total)
 
     let current = start
 
