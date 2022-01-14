@@ -99,12 +99,14 @@ const main = async () => {
     const since = performance.now()
 
     let current = start
+    let iteration = 1
 
     for (let i = start; i <= end; i++) {
         queue.add(async () => {
             const hentai = await getNhentai(i)
 
             current++
+            iteration++
 
             if (hentai instanceof Error) {
                 console.log(`${i} not found`)
@@ -124,8 +126,8 @@ const main = async () => {
                 4
             )}%) | ${current}/${end} | Estimate time left: ${formatDisplayTime(
                 estimateTime({
-                    current,
-                    total: end,
+                    current: iteration,
+                    total: end - start,
                     since
                 })
             )}`
