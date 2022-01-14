@@ -29,14 +29,27 @@ const getLatest = async (): Promise<number | Error> => {
     return id ? parseInt(id) : new Error("Couldn't find id")
 }
 
-const getNhentai = async (id: number): Promise<string | Error> => {
-    const hentai: string = await fetch(
-        `https://nhentai.net/api/gallery/${id}`
-    ).then((res) => res.text())
+const getNhentai = async (
+    id: number,
+    iteration: number
+): Promise<string | Error> => {
+    try {
+        const hentai: string = await fetch(
+            `https://nhentai.net/api/gallery/${id}`
+        ).then((res) => res.text())
 
-    if (!hentai.startsWith('{"id"')) return new Error('Not found')
+        if (!hentai.startsWith('{"id"')) return new Error('Not found')
 
-    return hentai
+        return hentai
+    } catch (err) {
+        if (iteration <= 5) {
+            await new Promise((resolve) => setTimeout(resolve, 8000))
+
+            return getNhentai(id, iteration + 1)
+        }
+
+        return new Error("Couldn't fetch hentai")
+    }
 }
 
 const estimateTime = ({
