@@ -124,7 +124,7 @@ const main = async () => {
         console.log(
             `(${((current / end) * 100).toFixed(
                 4
-            )}%) | ${current}/${end} | Estimate time left: ${formatDisplayTime(
+            )}%) | ${iteration}/${end - start} | Estimate time left: ${formatDisplayTime(
                 estimateTime({
                     current: iteration,
                     total: end - start,
