@@ -31,14 +31,14 @@ const getLatest = async (): Promise<number | Error> => {
     // return id ? parseInt(id) : new Error("Couldn't find id")
 }
 
-const getNhentai = async (id: number): Promise<number | Error> => {
+const getNhentai = async (id: number): Promise<string | Error> => {
     const hentai: string = await fetch(
         `https://nhentai.net/api/gallery/${id}`
     ).then((res) => res.text())
 
     if (!hentai.startsWith('{"id"')) return new Error('Not found')
 
-    return +hentai
+    return hentai
 }
 
 const estimateTime = ({
@@ -75,7 +75,7 @@ const formatDisplayTime = (time: number) => {
 
 const batch = (
     total: number,
-    batch: number = +(process.env?.WORKER_INDEX ?? 0)
+    batch: number = +(process.env?.WORKER_INDEX ?? 1)
 ) => {
     const totalWorker = +(process.env?.WORKER_COUNT ?? 1)
 
@@ -113,7 +113,7 @@ const main = async () => {
                 return
             }
 
-            writeFileSync(`data/${i}.json`, hentai.toString())
+            writeFileSync(`data/${i}.json`, hentai)
         })
 
         // For GH Action use 1.5s, local use 0.625s
