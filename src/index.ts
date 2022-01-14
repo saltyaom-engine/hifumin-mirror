@@ -68,7 +68,7 @@ const main = async () => {
             writeFileSync(`data/${i}.json`, hentai)
         })
 
-        queue.add(() => new Promise((resolve) => setTimeout(resolve, 1000)))
+        queue.add(() => new Promise((resolve) => setTimeout(resolve, 650)))
     }
 
     const progress = setInterval(() => {
