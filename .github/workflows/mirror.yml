@@ -19,7 +19,7 @@ jobs:
         ci_node_total: [2]
         # set N-1 indexes for parallel jobs
         # When you run 2 parallel jobs then first job will have index 0, the second job will have index 1 etc
-        ci_node_index: [0, 1]
+        ci_node_index: [1, 2]
     steps:
       - uses: actions/checkout@v2
 
