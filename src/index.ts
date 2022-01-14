@@ -122,11 +122,11 @@ const main = async () => {
 
     const progress = setInterval(() => {
         console.log(
-            `(${((current / end) * 100).toFixed(
+            `(${((iteration / end - start) * 100).toFixed(
                 4
-            )}%) | ${iteration}/${end - start} | Estimate time left: ${formatDisplayTime(
+            )}%) | ${current}/${end} | Estimate time left: ${formatDisplayTime(
                 estimateTime({
-                    current: iteration,
+                    current,
                     total: end - start,
                     since
                 })
