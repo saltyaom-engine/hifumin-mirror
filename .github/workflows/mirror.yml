@@ -40,7 +40,7 @@ jobs:
           WORKER_INDEX: ${{ matrix.ci_node_index }}
 
       - name: Zip artifact
-        run: zip data-${{ matrix.ci_node_index }}.zip ./data/* -r
+        run: zip data-${{ matrix.ci_node_index }}.zip data
 
       - uses: actions/upload-artifact@v2
         with:
