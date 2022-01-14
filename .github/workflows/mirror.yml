@@ -54,8 +54,8 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
 
-      - name: unzip artifact for deployment
-        run: unzip **/*.zip
+      - name: unzip artifact
+        run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
 
       - run: mkdir data
       - run: find . -type f -exec mv -nt data {} +
