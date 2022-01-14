@@ -71,6 +71,18 @@ const formatDisplayTime = (time: number) => {
     return `${seconds}s`
 }
 
+const batch = (
+    total: number,
+    batch: number = +(process.env?.WORKER_INDEX ?? 0)
+) => {
+    const totalWorker = +(process.env?.WORKER_COUNT ?? 1)
+
+    const start = ((batch - 1) * total) / totalWorker + 1
+    const end = (batch * total) / totalWorker
+
+    return { start, end }
+}
+
 const main = async () => {
     const total = await getLatest()
 
@@ -84,9 +96,11 @@ const main = async () => {
     if (!existsSync('data')) mkdirSync('data')
 
     const since = performance.now()
-    let current = 1
+    const { start, end } = batch(total)
 
-    for (let i = 1; i <= total; i++) {
+    let current = start
+
+    for (let i = start; i <= end; i++) {
         queue.add(async () => {
             const hentai = await getNhentai(i)
 
