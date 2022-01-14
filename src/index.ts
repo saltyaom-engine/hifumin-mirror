@@ -9,7 +9,7 @@ const queue = new PQueue({ concurrency: 6 })
 
 // ? Get estimate latest nhentai id
 const getLatest = async (): Promise<number | Error> => {
-    return 500
+    return 100
 
     // const html = await fetch('https://nhentai.net')
     //     .then((res) => res.text())
@@ -49,7 +49,7 @@ const main = async () => {
         process.exit(1)
     }
 
-    console.log("Total:", total)
+    console.log('Total:', total)
 
     if (!existsSync('data')) mkdirSync('data')
 
@@ -69,11 +69,14 @@ const main = async () => {
 
             writeFileSync(`data/${i}.json`, hentai)
         })
+
         queue.add(() => new Promise((resolve) => setTimeout(resolve, 575)))
     }
 
     const progress = setInterval(() => {
-        console.log(`(${((current / total) * 100).toFixed(4)}%) | ${current}/${total}`)
+        console.log(
+            `(${((current / total) * 100).toFixed(4)}%) | ${current}/${total}`
+        )
     }, 10000)
 
     await queue.onIdle()

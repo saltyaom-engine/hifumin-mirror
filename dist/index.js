@@ -19,7 +19,7 @@ const p_queue_1 = __importDefault(require("p-queue"));
 const queue = new p_queue_1.default({ concurrency: 6 });
 // ? Get estimate latest nhentai id
 const getLatest = () => __awaiter(void 0, void 0, void 0, function* () {
-    return 500;
+    return 100;
     // const html = await fetch('https://nhentai.net')
     //     .then((res) => res.text())
     //     .then((res) => parse(res))
@@ -46,7 +46,7 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         console.error(total.message);
         process.exit(1);
     }
-    console.log("Total:", total);
+    console.log('Total:', total);
     if (!(0, fs_1.existsSync)('data'))
         (0, fs_1.mkdirSync)('data');
     const since = performance.now();
