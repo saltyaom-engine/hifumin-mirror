@@ -43,11 +43,24 @@ jobs:
           # Use the index from matrix as an environment variable
           WORKER_INDEX: ${{ matrix.ci_node_index }}
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact-${{ matrix.ci_node_index }}
+          path: data
+
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+
+      - run: find . -type f -exec mv -i -t data {} +
+  
       - name: Push
-        run: |
-          git config --global user.name 'saltyaom-engine'
-          git config --global user.email 'saltyaom-engine@users.noreply.github.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git checkout "${GITHUB_REF:11}"
-          git commit -am "mirror"
-          git push origin generated
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: generated # The branch name where you want to push the assets
+          FOLDER: data # The directory where your assets are generated
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
+          MESSAGE: "Build: ({sha}) {msg}" # The commit message
