@@ -55,6 +55,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
 
+      - run: mkdir data
       - run: find . -type f -exec mv -i -t data {} +
   
       - name: Push
