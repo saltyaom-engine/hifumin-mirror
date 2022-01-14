@@ -9,26 +9,24 @@ const queue = new PQueue({ concurrency: 6 })
 
 // ? Get estimate latest nhentai id
 const getLatest = async (): Promise<number | Error> => {
-    return 300
+    const html = await fetch('https://nhentai.net')
+        .then((res) => res.text())
+        .then((res) => parse(res))
 
-    // const html = await fetch('https://nhentai.net')
-    //     .then((res) => res.text())
-    //     .then((res) => parse(res))
+    const firstCover = html.querySelector(
+        '#content > .index-container:nth-child(2) > .gallery > .cover'
+    )
 
-    // const firstCover = html.querySelector(
-    //     '#content > .index-container:nth-child(2) > .gallery > .cover'
-    // )
+    if (!firstCover) throw new Error("Couldn't find first cover")
 
-    // if (!firstCover) throw new Error("Couldn't find first cover")
+    const url = firstCover.getAttribute('href')!
 
-    // const url = firstCover.getAttribute('href')!
+    const id = url
+        .split('/')
+        .reverse()
+        .find((x) => x)
 
-    // const id = url
-    //     .split('/')
-    //     .reverse()
-    //     .find((x) => x)
-
-    // return id ? parseInt(id) : new Error("Couldn't find id")
+    return id ? parseInt(id) : new Error("Couldn't find id")
 }
 
 const getNhentai = async (
