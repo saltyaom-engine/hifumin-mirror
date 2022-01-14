@@ -52,7 +52,7 @@ jobs:
         uses: actions/download-artifact@v2
 
       - run: mkdir data
-      - run: find . -type f -exec mv -i -t data {} +
+      - run: find . -type f -exec mv -nt data {} +
   
       - name: Push
         uses: s0/git-publish-subdir-action@develop
