@@ -39,6 +39,9 @@ jobs:
           # Use the index from matrix as an environment variable
           WORKER_INDEX: ${{ matrix.ci_node_index }}
 
+      - name: Zip artifact
+        run: zip data-${{ matrix.ci_node_index }}.zip ./data/* -r
+
       - uses: actions/upload-artifact@v2
         with:
           name: artifact-${{ matrix.ci_node_index }}
@@ -50,6 +53,9 @@ jobs:
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v2
+
+      - name: unzip artifact for deployment
+        run: unzip *.zip
 
       - run: mkdir data
       - run: find . -type f -exec mv -nt data {} +
