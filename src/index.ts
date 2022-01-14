@@ -31,7 +31,7 @@ const getLatest = async (): Promise<number | Error> => {
 
 const getNhentai = async (
     id: number,
-    iteration: number
+    iteration = 0
 ): Promise<string | Error> => {
     try {
         const hentai: string = await fetch(
