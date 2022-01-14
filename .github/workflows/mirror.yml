@@ -49,6 +49,7 @@ jobs:
           path: data
 
   push:
+    needs: [mirror]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
