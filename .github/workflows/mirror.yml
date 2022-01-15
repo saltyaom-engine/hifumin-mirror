@@ -45,7 +45,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: artifact-${{ matrix.ci_node_index }}
-          path: data
+          path: data-${{ matrix.ci_node_index }}.zip
 
   push:
     needs: [mirror]
