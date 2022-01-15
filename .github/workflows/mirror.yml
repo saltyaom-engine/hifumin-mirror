@@ -58,7 +58,7 @@ jobs:
         run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
 
       - run: mkdir data
-      - run: find . -type f -exec mv -nt data {} +
+      - run: find . -name '*.json' -exec mv -nt data {} +
   
       - name: Push
         uses: s0/git-publish-subdir-action@develop

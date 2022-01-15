@@ -9,7 +9,7 @@ const queue = new PQueue({ concurrency: 6 })
 
 // ? Get estimate latest nhentai id
 const getLatest = async (): Promise<number | Error> => {
-    return 300
+    return 4000
 
     // const html = await fetch('https://nhentai.net')
     //     .then((res) => res.text())
@@ -131,7 +131,7 @@ const main = async () => {
             writeFileSync(`data/${i}.json`, hentai)
         })
 
-        // For GH Action use 1.5s, local use 0.625s
+        // For GH Action use 1.25s, local use 0.625s
         queue.add(() => new Promise((resolve) => setTimeout(resolve, 1250)))
     }
 
