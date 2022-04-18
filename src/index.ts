@@ -14,7 +14,7 @@ const getLatest = async (): Promise<number | Error> => {
         .then((res) => parse(res))
 
     const firstCover = html.querySelector(
-        '#content > .index-container:nth-child(2) > .gallery > .cover'
+        '#content > .index-container:nth-child(3) > .gallery > .cover'
     )
 
     if (!firstCover) throw new Error("Couldn't find first cover")
