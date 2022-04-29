@@ -111,6 +111,14 @@ const main = async () => {
 
     const since = performance.now()
 
+    const latestHentai = await getNhentai(total)
+    if(latestHentai instanceof Error) {
+        console.error("Can't get latest hentai")
+        process.exit(1)
+    }
+
+    writeFileSync(`data/latest.json`, latestHentai)
+
     let current = start
     let iteration = 1
 
@@ -121,10 +129,8 @@ const main = async () => {
             current++
             iteration++
 
-            if (hentai instanceof Error) {
-                console.log(`${i} not found`)
-                return
-            }
+            if (hentai instanceof Error)
+                return console.log(`${i} not found`)
 
             writeFileSync(`data/${i}.json`, hentai)
         })
