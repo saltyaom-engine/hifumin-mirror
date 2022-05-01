@@ -1,4 +1,5 @@
-import { mkdirSync, existsSync, writeFileSync } from 'fs'
+import { mkdirSync, existsSync, writeFileSync, appendFileSync } from 'fs'
+import { writeFile, appendFile } from 'fs/promises'
 
 import type { Browser, Page } from 'puppeteer'
 import puppeteer from 'puppeteer-extra'
@@ -10,7 +11,15 @@ import parse from 'node-html-parser'
 puppeteer.use(Stealth())
 const queue = new PQueue({ concurrency: 6 })
 
-const getLatest = async (browser: Browser, iteration = 0): Promise<number | Error> => {
+const currentWorker = +(process.env?.WORKER_INDEX ?? 1)
+const searchable = `data/searchable${currentWorker}.json`
+
+const searchIndex = [] as Record<string, unknown>[]
+
+const getLatest = async (
+    browser: Browser,
+    iteration = 0
+): Promise<number | Error> => {
     const page = await browser.newPage()
     await page.goto('https://nhentai.net', {
         waitUntil: 'networkidle2'
@@ -40,8 +49,8 @@ const getLatest = async (browser: Browser, iteration = 0): Promise<number | Erro
         await page.close()
         return id ? parseInt(id) : new Error("Couldn't find id")
     } catch (err) {
-        if(iteration < 3) {
-            await new Promise((resolve) => setTimeout(resolve, 5000))
+        if (iteration < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 3000))
 
             return getLatest(browser, iteration + 1)
         }
@@ -65,7 +74,7 @@ const getNhentai = async (
         })
 
         await page.waitForSelector('body > pre', {
-            timeout: 10000
+            timeout: iteration === 0 ? 2500 : 7500
         })
 
         const hentai = await page.$eval('body > pre', (el) => el.innerHTML)
@@ -83,6 +92,17 @@ const getNhentai = async (
     } finally {
         await page.close()
     }
+}
+
+const addToSearchIndex = async (data: string) => {
+    const hentai = JSON.parse(data)
+
+    searchIndex.push({
+        id: +hentai.id,
+        title: hentai.title.pretty,
+        tags: hentai.tags.map((x: Record<string, unknown>) => x.name),
+        page: hentai.num_pages
+    })
 }
 
 const estimateTime = ({
@@ -116,10 +136,7 @@ const formatDisplayTime = (time: number) => {
     return `${seconds}s`
 }
 
-const batch = (
-    total: number,
-    batch: number = +(process.env?.WORKER_INDEX ?? 1)
-) => {
+const batch = (total: number, batch: number = currentWorker) => {
     const totalWorker = +(process.env?.WORKER_COUNT ?? 1)
 
     const start = Math.floor(((batch - 1) * total) / totalWorker + 1)
@@ -142,6 +159,8 @@ const main = async () => {
         process.exit(1)
     }
 
+    total = 50
+
     const { start, end } = batch(total)
     console.log(`${total} total, worker: ${start} - ${end}`)
 
@@ -155,8 +174,10 @@ const main = async () => {
         process.exit(1)
     }
 
-    writeFileSync(`data/latest_id.txt`, total.toString())
-    writeFileSync(`data/latest.json`, latestHentai)
+    await Promise.all([
+        writeFile(`data/latest_id.txt`, total.toString()),
+        writeFile(`data/latest.json`, latestHentai)
+    ])
 
     let current = start
     let iteration = 1
@@ -170,15 +191,23 @@ const main = async () => {
 
             if (hentai instanceof Error) return console.log(`${i} not found`)
 
-            writeFileSync(`data/${i}.json`, hentai)
-
-            await new Promise((resolve) => setTimeout(resolve, 750))
+            await Promise.all([
+                writeFile(`data/${i}.json`, hentai),
+                addToSearchIndex(hentai),
+                new Promise((resolve) => setTimeout(resolve, 500))
+            ])
         })
 
     let latestProgress = 0
 
-    const progress = setInterval(() => {
-        if (latestProgress === iteration) new Error('Progress stuck, skip')
+    const progress = setInterval(async () => {
+        if (latestProgress === iteration) {
+            appendFileSync(searchable, ']')
+
+            await browser.close()
+            return process.exit(0)
+        }
+
         latestProgress = iteration
 
         console.log(
@@ -197,6 +226,7 @@ const main = async () => {
     await queue.onIdle()
 
     clearInterval(progress)
+    await writeFile(searchable, JSON.stringify(searchIndex))
 
     console.log(
         'Done in',
