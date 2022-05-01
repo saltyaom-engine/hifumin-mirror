@@ -124,7 +124,9 @@ const batch = (
 
 const main = async () => {
     const browser = (await puppeteer.launch({
-        headless: true
+        headless: false,
+        args: ['--no-sandbox'],
+        executablePath: process.env.PUPPETEER_EXEC_PATH
     })) as unknown as Browser
 
     let total = await getLatest(browser)
@@ -164,7 +166,7 @@ const main = async () => {
 
             writeFileSync(`data/${i}.json`, hentai)
 
-            await new Promise((resolve) => setTimeout(resolve, 825))
+            await new Promise((resolve) => setTimeout(resolve, 750))
         })
 
     let latestProgress = 0
