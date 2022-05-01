@@ -10,7 +10,7 @@ import parse from 'node-html-parser'
 puppeteer.use(Stealth())
 const queue = new PQueue({ concurrency: 6 })
 
-const getLatest = async (browser: Browser): Promise<number | Error> => {
+const getLatest = async (browser: Browser, iteration = 0): Promise<number | Error> => {
     const page = await browser.newPage()
     await page.goto('https://nhentai.net', {
         waitUntil: 'networkidle2'
@@ -40,6 +40,12 @@ const getLatest = async (browser: Browser): Promise<number | Error> => {
         await page.close()
         return id ? parseInt(id) : new Error("Couldn't find id")
     } catch (err) {
+        if(iteration < 3) {
+            await new Promise((resolve) => setTimeout(resolve, 5000))
+
+            return getLatest(browser, iteration + 1)
+        }
+
         console.log(await page.content())
         return new Error('Unable to bypass Cloudflare')
     }
