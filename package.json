@@ -18,6 +18,10 @@
   "dependencies": {
     "isomorphic-unfetch": "^3.1.0",
     "node-html-parser": "^5.2.0",
-    "p-queue": "6"
+    "p-queue": "6",
+    "puppeteer": "^13.7.0",
+    "puppeteer-extra": "^3.2.3",
+    "puppeteer-extra-plugin-stealth": "^2.9.0",
+    "request": "^2.88.2"
   }
 }
