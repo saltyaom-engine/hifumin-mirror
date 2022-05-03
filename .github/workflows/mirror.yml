@@ -69,3 +69,53 @@ jobs:
           FOLDER: data
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: "mirror"
+
+  deploy:
+    name: Setup Gcloud Account
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
+
+    steps:
+    - name: Login
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_email: ${{ secrets.GCP_EMAIL }}
+        service_account_key: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker --quiet
+
+    - name: Checkout Sirin
+      uses: actions/checkout@v3
+      with:
+        repository: saltyaom/sirin
+
+    - run: mkdir data
+    - run: cd data
+
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+
+    - name: unzip artifact
+      run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
+
+    - name: create data folder
+    - run: find . -name '*.json' -exec mv -nt tmp {} +
+    - run: find . -name "*.zip" -type f -delete
+    - run: mv tmp/* .
+    - run: rm -r tmp
+    - run: cd ..
+
+    - name: Build Docker image
+      run: docker build . -t $IMAGE_NAME
+
+    - name: Test Docker image
+      run: docker run $IMAGE_NAME sh -c "go test -v"
+
+    - name: Push Docker image
+      run: docker push $IMAGE_NAME
+
+    - name: Deploy Docker image
+      run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 1Gi --timeout 40 --vpc-connector $GCP_VPC_CONNECTOR  --allow-unauthenticated --ingress internal-and-cloud-load-balancing

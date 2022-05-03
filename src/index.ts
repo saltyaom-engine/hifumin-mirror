@@ -49,13 +49,12 @@ const getLatest = async (
         await page.close()
         return id ? parseInt(id) : new Error("Couldn't find id")
     } catch (err) {
-        if (iteration < 3) {
-            await new Promise((resolve) => setTimeout(resolve, 3000))
+        if (iteration < 5) {
+            await new Promise((resolve) => setTimeout(resolve, 3000 * iteration))
 
             return getLatest(browser, iteration + 1)
         }
 
-        console.log(await page.content())
         return new Error('Unable to bypass Cloudflare')
     }
 }
