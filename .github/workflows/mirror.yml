@@ -102,7 +102,8 @@ jobs:
       run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
 
     - name: create data folder
-    - run: find . -name '*.json' -exec mv -nt tmp {} +
+      run: find . -name '*.json' -exec mv -nt tmp {} +
+
     - run: find . -name "*.zip" -type f -delete
     - run: mv tmp/* .
     - run: rm -r tmp
