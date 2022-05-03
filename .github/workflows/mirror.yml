@@ -102,13 +102,13 @@ jobs:
     - name: unzip artifact
       run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
 
-    - name: create data folder
+    - run: mkdir tmp
+    - name: Move file to temp folder
       run: find . -name '*.json' -exec mv -nt tmp {} +
 
     - name: Delete all zip
       run: find . -name "*.zip" -type f -delete
     
-    - run: mkdir tmp
     - run: mv tmp/* .
     - run: rm -r tmp
     - run: cd ..
