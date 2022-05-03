@@ -48,30 +48,30 @@ jobs:
           name: artifact-${{ matrix.ci_node_index }}
           path: data-${{ matrix.ci_node_index }}.zip
 
-  push:
-    needs: [mirror]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
+  # push:
+  #   needs: [mirror]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download artifact
+  #       uses: actions/download-artifact@v2
 
-      - name: unzip artifact
-        run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
+  #     - name: unzip artifact
+  #       run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
 
-      - run: mkdir data
-      - run: find . -name '*.json' -exec mv -nt data {} +
+  #     - run: mkdir data
+  #     - run: find . -name '*.json' -exec mv -nt data {} +
   
-      - name: Push
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: generated
-          FOLDER: data
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "mirror"
+  #     - name: Push
+  #       uses: s0/git-publish-subdir-action@develop
+  #       env:
+  #         REPO: self
+  #         BRANCH: generated
+  #         FOLDER: data
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         MESSAGE: "mirror"
 
   deploy:
-    name: Setup Gcloud Account
+    name: Deploy to Cloud Run
     needs: [mirror]
     runs-on: ubuntu-latest
     env:
@@ -105,7 +105,10 @@ jobs:
     - name: create data folder
       run: find . -name '*.json' -exec mv -nt tmp {} +
 
-    - run: find . -name "*.zip" -type f -delete
+    - name: Delete all zip
+      run: find . -name "*.zip" -type f -delete
+    
+    - run: mkdir tmp
     - run: mv tmp/* .
     - run: rm -r tmp
     - run: cd ..
