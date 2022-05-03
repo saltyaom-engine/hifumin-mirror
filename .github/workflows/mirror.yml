@@ -120,4 +120,4 @@ jobs:
       run: docker push $IMAGE_NAME
 
     - name: Deploy Docker image
-      run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 1Gi --timeout 40 --vpc-connector $GCP_VPC_CONNECTOR  --allow-unauthenticated --ingress internal-and-cloud-load-balancing
+      run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 1Gi --timeout 40 --allow-unauthenticated --ingress internal-and-cloud-load-balancing
