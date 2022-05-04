@@ -120,6 +120,7 @@ jobs:
       uses: s0/git-publish-subdir-action@develop
       env:
         REPO: self
+        FOLDER: .
         BRANCH: cloud-run
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MESSAGE: "Cloud Run"
