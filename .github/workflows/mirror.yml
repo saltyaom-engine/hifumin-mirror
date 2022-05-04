@@ -85,12 +85,15 @@ jobs:
         service_account_email: ${{ secrets.GCP_EMAIL }}
         service_account_key: ${{ secrets.GCP_CREDENTIALS }}
 
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
 
-    - run: git clone https://github.com/saltyaom/sirin sirin
+    - run: npx degit https://github.com/saltyaom/sirin
     - run: cd sirin
-    - run: rm -rf .git
     - run: mkdir data
     - run: cd data
 
