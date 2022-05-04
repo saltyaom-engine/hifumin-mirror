@@ -111,7 +111,7 @@ jobs:
     
     - run: mv tmp/* .
     - run: rm -r tmp
-    - run: cd ../..
+    - run: cd ..
     - run: mv data sirin/data
 
     # - name: Build Docker image
