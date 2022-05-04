@@ -110,13 +110,12 @@ jobs:
 
     - run: rm -rf tmp
 
-    - run: pwd && ls
-      working-directory: ./tmp
-
     - run: mv data sirin/data
 
     - run: pwd && ls
       working-directory: ./sirin
+
+    - run: pwd && ls
 
     # - name: Build Docker image
     #   run: docker build . -t ${{ secrets.IMAGE_NAME }}
