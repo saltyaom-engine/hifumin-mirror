@@ -92,7 +92,7 @@ jobs:
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
 
-    - run: npx degit https://github.com/saltyaom/sirin
+    - run: npx degit https://github.com/saltyaom/sirin sirin
     - run: cd sirin
     - run: mkdir data
     - run: cd data
