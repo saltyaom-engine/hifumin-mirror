@@ -8,8 +8,7 @@ const app = fastify()
 const main = async () => {
     const meilisearch = await createClient()
 
-    app
-        .addHook('onRequest', async (req) => (req.meilisearch = meilisearch))
+    app.addHook('onRequest', async (req) => (req.meilisearch = meilisearch))
         .register(base)
         .register(search, {
             prefix: '/search'
