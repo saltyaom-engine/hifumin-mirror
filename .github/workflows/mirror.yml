@@ -124,7 +124,8 @@ jobs:
         MESSAGE: "Cloud Run"
 
     - name: Build Docker image
-      run: docker build . -t $IMAGE_NAME
+      run: docker build -t $IMAGE_NAME .
+      working-directory: ./sirin
 
     - name: Push Docker image
       run: docker push $IMAGE_NAME
