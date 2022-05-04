@@ -93,29 +93,37 @@ jobs:
       run: gcloud auth configure-docker --quiet
 
     - run: npx degit https://github.com/saltyaom/sirin sirin
-    - run: mkdir data
-    - run: cd data
+    - run: mkdir tmp && mkdir data
 
     - name: Download artifact
       uses: actions/download-artifact@v2
 
+    - run: mv *.zip tmp
+
     - name: unzip artifact
-      run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
+      run: unzip '*.zip'
+      working-directory: ./tmp
 
-    - run: mkdir tmp
-    - name: Move file to temp folder
-      run: find . -name '*.json' -exec mv -nt tmp {} +
+    - run: mv searchable*.json ../data
+      working-directory: ./tmp
 
-    - name: Delete all zip
-      run: find . -name "*.zip" -type f -delete
+    - name: Remove all json file except (moved) searchable.json
+      run: rm *.json
+      working-directory: ./tmp
     
     - run: mv tmp/* .
+      working-directory: ./tmp
+
     - run: rm -r tmp
-    - run: cd ..
+      working-directory: ./tmp
+
     - run: pwd && ls
+      working-directory: ./tmp
+
     - run: mv data sirin/data
-    - run: cd sirin
+
     - run: pwd && ls
+      working-directory: ./sirin
 
     # - name: Build Docker image
     #   run: docker build . -t ${{ secrets.IMAGE_NAME }}
