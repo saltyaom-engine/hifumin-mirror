@@ -92,14 +92,14 @@ jobs:
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
 
-    - run: npx degit https://github.com/saltyaom/sirin sirin
-    - run: mkdir tmp && mkdir data
-
     - name: Download artifact
       uses: actions/download-artifact@v2
 
+    - run: npx degit https://github.com/saltyaom/sirin sirin
+    - run: mkdir tmp && mkdir data
+
     - run: ls
-    - run: mv *.zip tmp
+    - run: mv artifact-*/*.zip tmp
 
     - name: unzip artifact
       run: unzip '*.zip'
@@ -108,15 +108,7 @@ jobs:
     - run: mv searchable*.json ../data
       working-directory: ./tmp
 
-    - name: Remove all json file except (moved) searchable.json
-      run: rm *.json
-      working-directory: ./tmp
-    
-    - run: mv tmp/* .
-      working-directory: ./tmp
-
-    - run: rm -r tmp
-      working-directory: ./tmp
+    - run: rm -rf tmp
 
     - run: pwd && ls
       working-directory: ./tmp
