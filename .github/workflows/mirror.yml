@@ -113,6 +113,7 @@ jobs:
     - run: rm -r tmp
     - run: cd ..
     - run: mv data sirin/data
+    - run: pwd && ls
 
     # - name: Build Docker image
     #   run: docker build . -t ${{ secrets.IMAGE_NAME }}
