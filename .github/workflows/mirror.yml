@@ -93,7 +93,6 @@ jobs:
       run: gcloud auth configure-docker --quiet
 
     - run: npx degit https://github.com/saltyaom/sirin sirin
-    - run: cd sirin
     - run: mkdir data
     - run: cd data
 
@@ -112,6 +111,7 @@ jobs:
     
     - run: mv tmp/* .
     - run: rm -r tmp
+    - run: mv data sirin/data
 
     # - name: Build Docker image
     #   run: docker build . -t ${{ secrets.IMAGE_NAME }}
