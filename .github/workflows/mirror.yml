@@ -98,6 +98,7 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v2
 
+    - run: ls
     - run: mv *.zip tmp
 
     - name: unzip artifact
