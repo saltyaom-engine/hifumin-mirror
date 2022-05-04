@@ -114,6 +114,8 @@ jobs:
     - run: cd ..
     - run: pwd && ls
     - run: mv data sirin/data
+    - run: cd sirin
+    - run: pwd && ls
 
     # - name: Build Docker image
     #   run: docker build . -t ${{ secrets.IMAGE_NAME }}
