@@ -116,12 +116,6 @@ jobs:
     - name: Build Docker image
       run: docker build . -t $IMAGE_NAME
 
-    - name: Push Docker image
-      run: docker push $IMAGE_NAME
-
-    - name: Deploy Docker image
-      run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 1Gi --timeout 40 --allow-unauthenticated --ingress internal-and-cloud-load-balancing
-
     - name: Push
       uses: s0/git-publish-subdir-action@develop
       env:
@@ -129,3 +123,9 @@ jobs:
         BRANCH: cloud-run
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MESSAGE: "Cloud Run"
+
+    - name: Push Docker image
+      run: docker push $IMAGE_NAME
+
+    - name: Deploy Docker image
+      run: gcloud run deploy ${{ secrets.GCP_PROJECT_ID }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 1Gi --timeout 40 --allow-unauthenticated --ingress internal-and-cloud-load-balancing
