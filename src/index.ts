@@ -158,8 +158,6 @@ const main = async () => {
         process.exit(1)
     }
 
-    total = 100
-
     const { start, end } = batch(total)
     console.log(`${total} total, worker: ${start} - ${end}`)
 
