@@ -75,7 +75,7 @@ jobs:
     needs: [mirror]
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
+      IMAGE_NAME: asia.gcr.io/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_APP_NAME }}
 
     steps:
     - name: Login
@@ -91,6 +91,9 @@ jobs:
 
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
+
+    - name: Install GCP beta component
+      run: gcloud components install beta --quiet
 
     - name: Download artifact
       uses: actions/download-artifact@v2
@@ -131,4 +134,4 @@ jobs:
       run: docker push $IMAGE_NAME
 
     - name: Deploy Docker image
-      run: gcloud run deploy ${{ secrets.GCP_APP_NAME }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 2Gi --timeout 40 --allow-unauthenticated --vpc-connector ${{ secrets.GCP_VPC_CONNECTOR }} --vpc-egress all-traffic --ingress internal-and-cloud-load-balancing --execution-environment gen2
+      run: gcloud beta run deploy ${{ secrets.GCP_APP_NAME }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 2Gi --timeout 40 --allow-unauthenticated --vpc-connector ${{ secrets.GCP_VPC_CONNECTOR }} --vpc-egress all-traffic --ingress internal-and-cloud-load-balancing --execution-environment gen2
