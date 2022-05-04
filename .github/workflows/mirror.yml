@@ -90,9 +90,9 @@ jobs:
 
     - run: git clone https://github.com/saltyaom/sirin
     - run: cd sirin
+    - run: rm -rf .git
     - run: mkdir data
     - run: cd data
-    - run: rm -rf .git
 
     - name: Download artifact
       uses: actions/download-artifact@v2
