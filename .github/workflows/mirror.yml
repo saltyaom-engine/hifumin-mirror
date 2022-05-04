@@ -88,11 +88,8 @@ jobs:
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
 
-    - name: Checkout Sirin
-      uses: actions/checkout@v3
-      with:
-        repository: saltyaom/sirin
-
+    - run: git clone https://github.com/saltyaom/sirin
+    - run: cd sirin
     - run: mkdir data
     - run: cd data
 
@@ -119,7 +116,7 @@ jobs:
     - name: Push
       uses: s0/git-publish-subdir-action@develop
       env:
-        REPO: git@github.com:saltyaom-engine/hifumin-mirror.git
+        REPO: self
         FOLDER: .
         BRANCH: cloud-run
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
