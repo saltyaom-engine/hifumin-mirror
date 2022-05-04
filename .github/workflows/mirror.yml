@@ -92,6 +92,7 @@ jobs:
     - run: cd sirin
     - run: mkdir data
     - run: cd data
+    - run: rm -rf .git
 
     - name: Download artifact
       uses: actions/download-artifact@v2
