@@ -119,7 +119,7 @@ jobs:
     - name: Push
       uses: s0/git-publish-subdir-action@develop
       env:
-        REPO: https://github.com/saltyaom-engine/hifumin-mirror
+        REPO: git@github.com:saltyaom-engine/hifumin-mirror.git
         FOLDER: .
         BRANCH: cloud-run
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
