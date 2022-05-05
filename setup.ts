@@ -60,7 +60,7 @@ const createClient = async () => {
 
         await index.updateSettings({
             sortableAttributes: ['id'],
-            searchableAttributes: ['title', 'tags']
+            searchableAttributes: ['tags', 'title']
         })
     }
 
