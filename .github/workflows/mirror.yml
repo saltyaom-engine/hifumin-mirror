@@ -177,7 +177,7 @@ jobs:
     - run: rm -f */searchable*.json
       working-directory: ./tmp
 
-    - run: mv */*.json ../data
+    - run: find . -name '*.json' -exec mv -nt ../data {} +
       working-directory: ./tmp
 
     - run: rm -rf tmp
