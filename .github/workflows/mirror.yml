@@ -122,7 +122,7 @@ jobs:
       env:
         REPO: self
         FOLDER: sirin
-        BRANCH: cloud-run/sirin
+        BRANCH: sirin
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MESSAGE: "Cloud Run"
 
@@ -191,7 +191,7 @@ jobs:
       env:
         REPO: self
         FOLDER: akashic
-        BRANCH: cloud-run/akashic
+        BRANCH: akashic
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MESSAGE: "Cloud Run"
 
