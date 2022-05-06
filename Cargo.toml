@@ -1,0 +1,32 @@
+[package]
+name = "akashic"
+version = "0.1.1"
+authors = ["SaltyAom <aomkirby123@gmail.com>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+opt-level = 's'
+lto = true
+panic = 'abort'
+codegen-units = 1
+
+[dependencies]
+actix-web = "4.0.1"
+actix-cors = "0.6.1"
+actix-files = "0.6.0"
+
+async-graphql = "3.0.38"
+async-graphql-actix-web = "3.0.38"
+
+serde = "1.0.136"
+serde_json = "1.0.79"
+serde-aux = "3.0.1"
+
+reqwest = { version = "0.11.10", default-features = false, features = ["rustls-tls"] }
+cached = "0.34.0"
+anyhow = "1.0.52"
+
+tokio = { version = "1.18.0", features = ["fs"] }
+futures = "0.3.21"
+lazy_static = "1.4.0"
