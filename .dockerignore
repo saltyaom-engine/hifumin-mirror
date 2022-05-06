@@ -1,0 +1,10 @@
+.git
+.gitignore
+.DS_Store
+Dockerfile
+.dockerignore
+data.ms
+target
+.swc
+node_modules
+build
