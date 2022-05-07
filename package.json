@@ -15,7 +15,8 @@
         "fastify": "^3.27.0",
         "isomorphic-unfetch": "^3.1.0",
         "meilisearch": "^0.25.0",
-        "node-cache": "^5.1.2"
+        "node-cache": "^5.1.2",
+        "pm2": "^5.2.0"
     },
     "devDependencies": {
         "@swc/cli": "^0.1.55",
