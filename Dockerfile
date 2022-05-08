@@ -69,8 +69,7 @@ COPY data data
 
 COPY --from=compiler /meilisearch/target/release/meilisearch meilisearch
 
-RUN chmod 777 ./meilisearch
-
+RUN chmod 555 ./meilisearch
 RUN pnpm ts-node setup.ts
 
 # * ====================

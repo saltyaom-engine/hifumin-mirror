@@ -31,15 +31,21 @@ const ping = async () => {
 
     const ping = setInterval(async () => {
         try {
+            console.log('Pinging Meilisearch')
+
             const status: MeiliSearchStatus = await fetch(
                 'http://localhost:7700/health'
             ).then((r) => r.json())
 
             if (status?.status === 'available') resolve()
-        } catch (_) {}
-    }, 100)
+        } catch (_) {
+            console.log('Failed to ping')
+        }
+    }, 1000)
 
     await ready
+
+    console.log('Pong')
     clearInterval(ping)
 }
 
@@ -69,32 +75,40 @@ const createClient = async () => {
             'words',
             'typo',
             'proximity',
-            'id:desc'
+            'sort'
         ])
     }
 
     const importing: Promise<EnqueuedTask>[] = []
 
+    // Index from newest to oldest
     for (let i = 20; i > 1; i--)
         importing.push(
             new Promise<EnqueuedTask>(async (done) => {
-                const file = await readFile(
-                    resolve(root, `./data/searchable${i}.json`),
-                    {
-                        encoding: 'utf-8'
-                    }
-                )
-
                 try {
-                done(await index.addDocuments(JSON.parse(file)))
-                } catch(error) {
-                    console.log(`Panic at searchable${i}.json`)
-                    console.log(error)
+                    const file = await readFile(
+                        resolve(root, `./data/searchable${i}.json`),
+                        {
+                            encoding: 'utf-8'
+                        }
+                    )
+
+                    done(await index.addDocuments(JSON.parse(file)))
+                } catch (err) {
+                    console.log(`Unable to parse JSON at searchable${i}.json`)
+                    console.log(err)
+                    console.log('Exiting...')
+
+                    process.exit(1)
                 }
             })
         )
 
     const tasks = await Promise.all(importing)
+
+    const signal = setTimeout(() => {
+        console.log('Indexing...')
+    }, 10000)
 
     await client.waitForTasks(
         tasks.map(({ uid }) => uid),
@@ -103,6 +117,8 @@ const createClient = async () => {
             timeOutMs: 5 * 60 * 1000
         }
     )
+
+    clearTimeout(signal)
 
     console.log('Done Indexing')
 
