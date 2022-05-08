@@ -195,18 +195,7 @@ const main = async () => {
             ])
         })
 
-    let latestProgress = 0
-
     const progress = setInterval(async () => {
-        if (latestProgress === iteration) {
-            appendFileSync(searchable, ']')
-
-            await browser.close()
-            return process.exit(0)
-        }
-
-        latestProgress = iteration
-
         console.log(
             `(${((iteration / (end - start)) * 100).toFixed(
                 4
