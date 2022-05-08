@@ -62,6 +62,16 @@ const createClient = async () => {
             sortableAttributes: ['id'],
             searchableAttributes: ['tags', 'title']
         })
+
+        await index.updateRankingRules([
+            'exactness',
+            'attribute',
+            'words',
+            'typo',
+            'proximity',
+            'sort',
+            'id:desc'
+        ])
     }
 
     const importing: Promise<EnqueuedTask>[] = []
