@@ -69,15 +69,13 @@ const createClient = async () => {
             'words',
             'typo',
             'proximity',
-            'sort',
             'id:desc'
         ])
     }
 
     const importing: Promise<EnqueuedTask>[] = []
 
-    // Index from newest to oldest
-    for (let i = 20; i > 1; i--) {
+    for (let i = 20; i > 1; i--)
         importing.push(
             new Promise<EnqueuedTask>(async (done) => {
                 const file = await readFile(
@@ -87,10 +85,14 @@ const createClient = async () => {
                     }
                 )
 
+                try {
                 done(await index.addDocuments(JSON.parse(file)))
+                } catch(error) {
+                    console.log(`Panic at searchable${i}.json`)
+                    console.log(error)
+                }
             })
         )
-    }
 
     const tasks = await Promise.all(importing)
 
