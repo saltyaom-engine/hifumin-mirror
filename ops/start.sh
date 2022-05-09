@@ -1,7 +1,7 @@
 #!/bin/bash
 ./meilisearch > /dev/null 2>&1 &
 
-./node_modules/pm2/bin/pm2-runtime build
+node build
 
 # ./parallel.sh "varnishd \
 #     -f /etc/varnish/default.vcl \
