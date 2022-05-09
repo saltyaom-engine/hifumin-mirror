@@ -25,7 +25,7 @@ const ping = async () => {
 
             if (status?.status === 'available') resolve()
         } catch (_) {}
-    }, 100)
+    }, 50)
 
     await ready
     clearInterval(ping)

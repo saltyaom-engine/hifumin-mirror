@@ -5,6 +5,6 @@ import type { Hentai } from '@modules/search/types'
 
 declare module 'fastify' {
     interface FastifyRequest {
-        meilisearch: Index<Hentai>
+        meilisearch: Promise<Index<Hentai>>
     }
 }

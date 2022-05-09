@@ -6,9 +6,11 @@ import { createClient, sleep } from '@services'
 const app = fastify()
 
 const main = async () => {
-    const meilisearch = await createClient()
+    const meilisearch = createClient()
 
-    app.addHook('onRequest', async (req) => (req.meilisearch = meilisearch))
+    app
+        // Using onRequest hook would block until client creation is complete
+        .decorateRequest('meilisearch', meilisearch)
         .register(base)
         .register(search, {
             prefix: '/search'
