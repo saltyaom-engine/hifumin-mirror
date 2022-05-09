@@ -29,7 +29,6 @@ const ping = async () => {
         resolve = r
     })
 
-    
     const ping = setInterval(async () => {
         try {
             console.log('Pinging Meilisearch...')
@@ -39,7 +38,7 @@ const ping = async () => {
 
             if (status?.status === 'available') resolve()
         } catch (_) {
-            console.log("Failed to ping Meilisearch")
+            console.log('Failed to ping Meilisearch')
         }
     }, 1000)
 
@@ -70,18 +69,18 @@ const createClient = async () => {
         })
 
         await index.updateSynonyms({
-            "yuri": ["females only"]
+            yuri: ['females only']
         })
 
         await index.updateRankingRules([
-            'attribute',
             'words',
             'sort',
-            'exactness',
-            'typo',
+            'attribute',
             'proximity',
+            'exactness',
+            'typo'
         ])
-    
+
         await index.updateFilterableAttributes(['tags'])
     }
 
@@ -116,7 +115,7 @@ const createClient = async () => {
         console.log('Indexing...')
     }, 60000)
 
-    console.log("Start Indexing...")
+    console.log('Start Indexing...')
     await client.waitForTasks(
         tasks.map(({ uid }) => uid),
         {
@@ -132,20 +131,27 @@ const createClient = async () => {
     process.exit(0)
 }
 
-createClient()
+// createClient()
 
-// const updateIndex = async () => {
-//     const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
-//     const index = client.index('hentai')
+const updateIndex = async () => {
+    const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
+    const index = client.index('hentai')
 
-//     await index.updateRankingRules([
-//         'attribute',
-//         'words',
-//         'sort',
-//         'exactness',
-//         'typo',
-//         'proximity',
-//     ])
-// }
+    const resetter = await index.resetRankingRules()
+    await client.waitForTasks([resetter.uid])
+
+    const task = await index.updateRankingRules([
+        'words',
+        'sort',
+        'attribute',
+        'proximity',
+        'exactness',
+        'typo'
+    ])
+
+    await client.waitForTasks([task.uid])
+
+    console.log('Update Index')
+}
 
 // updateIndex()

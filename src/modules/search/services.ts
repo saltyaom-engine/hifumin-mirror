@@ -11,14 +11,14 @@ const getBatch = (batch: number) => ({
     offset: (batch - 1) * limit
 })
 
-type Resolver = (v: Object | null) => void
-type Pending = [Promise<Object | null>, Resolver]
+type Resolver = (v: number[] | null) => void
+type Pending = [Promise<number[] | null>, Resolver]
 
 const pendings: Record<string, Pending> = {}
 
 const createPending = (key: string) => {
     let resolver: Resolver = () => {}
-    const pending = new Promise<Object | null>((resolve) => {
+    const pending = new Promise<number[] | null>((resolve) => {
         resolver = resolve
     })
 
@@ -35,13 +35,17 @@ export const search = async (
     client: Index<Hentai>,
     keyword: string,
     batch = 1
-) => {
+ ) => {
     const key = keyword + batch
-    const cached = Cache.get(key)
+    const cached = Cache.get<number[]>(key)
     if (cached) return cached
 
     const pending = pendings[key]
-    if (pending) return await pending
+    if (pending) {
+        const operation = await pending[0]
+
+        if (operation) return await operation
+    }
 
     const resolve = createPending(key)
 
@@ -49,7 +53,8 @@ export const search = async (
         const response = await client.search<Hentai>(keyword, {
             ...getBatch(batch),
             sort: ['id:desc'],
-            filter: FILTERS[keyword] ?? ''
+            filter: FILTERS[keyword] ?? '',
+            matches: true
         })
 
         const result = response.hits.map((hit) => hit.id)
