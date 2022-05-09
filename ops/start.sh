@@ -1,5 +1,5 @@
 #!/bin/bash
-./meilisearch > /dev/null 2>&1 &
+./meilisearch --no-analytics > /dev/null 2>&1 &
 
 ./node_modules/pm2/bin/pm2-runtime build
 
