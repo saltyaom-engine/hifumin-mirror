@@ -27,8 +27,8 @@ const createPending = (key: string) => {
     return resolver
 }
 
-const FILTERS: Record<string, string> = {
-    yuri: '(tags != "yaoi") OR (tags = "yuri or ice") OR (tags != "yuuri")'
+const FILTERS: Record<string, string | string[]> = {
+    yuri: '(tags != "yaoi") AND (tags != "yuri or ice") AND (tags != "yuuri") AND (tags != "males only")'
 }
 
 export const search = async (
@@ -44,15 +44,20 @@ export const search = async (
     if (pending) return await pending
 
     const resolve = createPending(key)
-    const response = await client.search<Hentai>(keyword, {
-        ...getBatch(batch),
-        sort: ['id:desc'],
-        filter: FILTERS[keyword] ?? '',
-    })
 
-    const result = response.hits.map((hit) => hit.id)
-    Cache.set(key, result)
-    resolve(result)
+    try {
+        const response = await client.search<Hentai>(keyword, {
+            ...getBatch(batch),
+            sort: ['id:desc'],
+            filter: FILTERS[keyword] ?? ''
+        })
 
-    return result
+        const result = response.hits.map((hit) => hit.id)
+        Cache.set(key, result)
+        resolve(result)
+
+        return result
+    } catch (_) {
+        return []
+    }
 }

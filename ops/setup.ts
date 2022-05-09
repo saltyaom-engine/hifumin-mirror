@@ -74,8 +74,8 @@ const createClient = async () => {
         })
 
         await index.updateRankingRules([
-            'words',
             'attribute',
+            'words',
             'sort',
             'exactness',
             'typo',
@@ -134,18 +134,18 @@ const createClient = async () => {
 
 createClient()
 
-const updateIndex = async () => {
-    const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
-    const index = client.index('hentai')
+// const updateIndex = async () => {
+//     const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
+//     const index = client.index('hentai')
 
-    await index.updateRankingRules([
-        'words',
-        'attribute',
-        'sort',
-        'exactness',
-        'typo',
-        'proximity',
-    ])
-}
+//     await index.updateRankingRules([
+//         'attribute',
+//         'words',
+//         'sort',
+//         'exactness',
+//         'typo',
+//         'proximity',
+//     ])
+// }
 
 // updateIndex()
