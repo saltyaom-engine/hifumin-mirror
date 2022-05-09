@@ -63,7 +63,7 @@ COPY pnpm-lock.yaml .
 
 RUN pnpm install --frozen-lockfile
 
-COPY setup.ts .
+COPY ops/setup.ts .
 COPY tsconfig.json .
 COPY data data
 

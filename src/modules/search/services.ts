@@ -17,14 +17,18 @@ type Pending = [Promise<Object | null>, Resolver]
 const pendings: Record<string, Pending> = {}
 
 const createPending = (key: string) => {
-	let resolver: Resolver = () => {}
-	const pending = new Promise<Object | null>((resolve) => {
-		resolver = resolve
-	})
+    let resolver: Resolver = () => {}
+    const pending = new Promise<Object | null>((resolve) => {
+        resolver = resolve
+    })
 
-	pendings[key] = [pending, resolver]
+    pendings[key] = [pending, resolver]
 
     return resolver
+}
+
+const FILTERS: Record<string, string> = {
+    yuri: '(tags != "yaoi") OR (tags = "yuri or ice") OR (tags != "yuuri")'
 }
 
 export const search = async (
@@ -37,12 +41,13 @@ export const search = async (
     if (cached) return cached
 
     const pending = pendings[key]
-    if(pending) return await pending
+    if (pending) return await pending
 
     const resolve = createPending(key)
     const response = await client.search<Hentai>(keyword, {
         ...getBatch(batch),
-        sort: ['id:desc']
+        sort: ['id:desc'],
+        filter: FILTERS[keyword] ?? '',
     })
 
     const result = response.hits.map((hit) => hit.id)
