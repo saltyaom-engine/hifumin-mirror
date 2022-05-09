@@ -1,24 +1,7 @@
 # * --- Compile Meilisearch from source ---
-FROM rust:alpine3.14 AS compiler
-RUN apk add -q --update-cache --no-cache build-base openssl-dev git
+FROM getmeili/meilisearch:v0.27.0 as meilisearch 
 
-WORKDIR /
-
-RUN git clone https://github.com/meilisearch/meilisearch
-
-WORKDIR /meilisearch
-
-ARG COMMIT_SHA
-ARG COMMIT_DATE
-ENV COMMIT_SHA=${COMMIT_SHA} COMMIT_DATE=${COMMIT_DATE}
-ENV RUSTFLAGS="-C target-feature=-crt-static"
-
-RUN     set -eux; \
-        apkArch="$(apk --print-arch)"; \
-        if [ "$apkArch" = "aarch64" ]; then \
-            export JEMALLOC_SYS_WITH_LG_PAGE=16; \
-        fi && \
-        cargo build --release
+RUN cp /bin/meilisearch /home/meilisearch
 
 # * --- Node Builder
 FROM node:16-alpine3.14 as builder
@@ -40,6 +23,8 @@ RUN pnpm build
 FROM node:16-alpine3.14 as modules
 
 WORKDIR /usr/app
+
+RUN apk add --no-cache bash curl libgcc
 
 RUN npm install -g pnpm
 
@@ -67,13 +52,13 @@ COPY ops/setup.ts .
 COPY tsconfig.json .
 COPY data data
 
-COPY --from=compiler /meilisearch/target/release/meilisearch meilisearch
+COPY --from=meilisearch /home/meilisearch meilisearch
 
-RUN chmod 555 ./meilisearch
+RUN chmod 747 ./meilisearch
 RUN pnpm ts-node setup.ts
 
 # * ====================
-FROM node:16-alpine3.14 as main
+FROM node:16-alpine3.14
 
 WORKDIR /usr/app/
 
@@ -81,7 +66,7 @@ RUN apk add --no-cache bash curl libgcc
 
 COPY --from=modules /usr/app/node_modules node_modules
 COPY --from=builder /usr/app/build build
-COPY --from=compiler /meilisearch/target/release/meilisearch meilisearch
+COPY --from=meilisearch /home/meilisearch meilisearch
 COPY --from=search-index /usr/app/data.ms data.ms
 COPY package.json .
 

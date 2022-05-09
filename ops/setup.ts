@@ -20,9 +20,25 @@ export interface MeiliSearchStatus {
     status: 'available' | string
 }
 
-const ping = async () => {
-    exec('./meilisearch')
+const command = resolve('./', root, `meilisearch --http-addr '0.0.0.0:7700'`)
 
+const meili = exec(command, (error, stdout, stderr) => {
+    console.log(stdout, stderr)
+
+    if (!error && !stderr) {
+        console.log(stdout)
+    } else {
+        console.error(error || stderr)
+
+        process.exit(1)
+    }
+})
+
+process.on('exit', () => {
+    if (meili) meili.kill()
+})
+
+const ping = async () => {
     let resolve: () => void
 
     const ready = new Promise<void>((r) => {
@@ -31,14 +47,14 @@ const ping = async () => {
 
     const ping = setInterval(async () => {
         try {
-            console.log('Pinging Meilisearch...')
             const status: MeiliSearchStatus = await fetch(
                 'http://0.0.0.0:7700/health'
             ).then((r) => r.json())
 
             if (status?.status === 'available') resolve()
-        } catch (_) {
-            console.log('Failed to ping Meilisearch')
+        } catch (err) {
+            // @ts-ignore
+            console.log(err?.code ?? 'Unable to connect to Meilisearch')
         }
     }, 1000)
 
@@ -66,10 +82,6 @@ const createClient = async () => {
         await index.updateSettings({
             sortableAttributes: ['id'],
             searchableAttributes: ['tags', 'title']
-        })
-
-        await index.updateSynonyms({
-            yuri: ['females only']
         })
 
         await index.updateRankingRules([
@@ -125,8 +137,40 @@ const createClient = async () => {
     )
 
     clearTimeout(signal)
-
     console.log('Done Indexing')
+
+    // For any possible size increase after search
+    console.log('Perform search warm up')
+
+    await index.search('yuri', {
+        limit: 25
+    })
+
+    await index.search('yuri', {
+        offset: 2,
+        limit: 25,
+        filter: '(tags != "yaoi") AND (tags != "yuri or ice") AND (tags != "yuuri") AND (tags != "males only")'
+    })
+
+    await index.search('blue archive', {
+        offset: 2,
+        limit: 25
+    })
+
+    await index.search('azur lane', {
+        limit: 25
+    })
+
+    await index.search('arknights', {
+        offset: 3,
+        limit: 25
+    })
+
+    await index.search('touhou', {
+        limit: 25
+    })
+
+    console.log('Done warming up')
 
     process.exit(0)
 }

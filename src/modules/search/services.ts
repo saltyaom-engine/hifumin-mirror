@@ -35,7 +35,7 @@ export const search = async (
     client: Index<Hentai>,
     keyword: string,
     batch = 1
- ) => {
+) => {
     const key = keyword + batch
     const cached = Cache.get<number[]>(key)
     if (cached) return cached
@@ -53,8 +53,7 @@ export const search = async (
         const response = await client.search<Hentai>(keyword, {
             ...getBatch(batch),
             sort: ['id:desc'],
-            filter: FILTERS[keyword] ?? '',
-            matches: true
+            filter: FILTERS[keyword] ?? undefined
         })
 
         const result = response.hits.map((hit) => hit.id)

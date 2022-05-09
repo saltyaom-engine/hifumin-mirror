@@ -25,7 +25,7 @@ const ping = async () => {
 
             if (status?.status === 'available') resolve()
         } catch (_) {}
-    }, 50)
+    }, 100)
 
     await ready
     clearInterval(ping)
@@ -34,9 +34,12 @@ const ping = async () => {
 const createClient = async (): Promise<Index<Hentai>> => {
     await ping()
 
+    console.log('Connected to Meilisearch')
     const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
 
     return await client.getIndex('hentai')
 }
 
-export default createClient
+const meilisearch = createClient()
+
+export default meilisearch

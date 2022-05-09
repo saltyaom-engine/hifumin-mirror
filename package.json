@@ -14,9 +14,8 @@
         "app-root-path": "^3.0.0",
         "fastify": "^3.27.0",
         "isomorphic-unfetch": "^3.1.0",
-        "meilisearch": "^0.25.0",
-        "node-cache": "^5.1.2",
-        "pm2": "^5.2.0"
+        "meilisearch": "^0.25.1",
+        "node-cache": "^5.1.2"
     },
     "devDependencies": {
         "@swc/cli": "^0.1.55",
