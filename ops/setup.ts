@@ -131,7 +131,7 @@ const createClient = async () => {
     process.exit(0)
 }
 
-// createClient()
+createClient()
 
 const updateIndex = async () => {
     const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
