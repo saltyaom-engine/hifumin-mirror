@@ -5,12 +5,23 @@ import { createClient, sleep } from '@services'
 
 const app = fastify()
 
-app.register(base)
-    .register(search, {
-        prefix: '/search'
-    })
-    .listen(8080, '0.0.0.0', (error, address) => {
-        if (error) return console.error(error)
+const main = async () => {
+    const meilisearch = await createClient()
 
-        console.log(`Sirin running at ${address}`)
+    app.addHook('onRequest', (req, res, done) => {
+        req.meilisearch = meilisearch
+
+        done()
     })
+        .register(base)
+        .register(search, {
+            prefix: '/search'
+        })
+        .listen(8080, '0.0.0.0', (error, address) => {
+            if (error) return console.error(error)
+
+            console.log(`Sirin running at ${address}`)
+        })
+}
+
+main()

@@ -52,7 +52,6 @@ export const search = async (
     try {
         const response = await client.search<Hentai>(keyword, {
             ...getBatch(batch),
-            sort: ['id:desc'],
             filter: FILTERS[keyword] ?? undefined
         })
 

@@ -20,7 +20,11 @@ export interface MeiliSearchStatus {
     status: 'available' | string
 }
 
-const command = resolve('./', root, `meilisearch --http-addr '0.0.0.0:7700'`)
+const command = resolve(
+    './',
+    root,
+    `meilisearch --http-addr '0.0.0.0:7700' --max-indexing-memory '1.2 Gb'`
+)
 
 const meili = exec(command, (error, stdout, stderr) => {
     console.log(stdout, stderr)
@@ -48,7 +52,7 @@ const ping = async () => {
     const ping = setInterval(async () => {
         try {
             const status: MeiliSearchStatus = await fetch(
-                'http://0.0.0.0:7700/health'
+                'http://localhost:7700/health'
             ).then((r) => r.json())
 
             if (status?.status === 'available') resolve()
@@ -67,7 +71,7 @@ const ping = async () => {
 const createClient = async () => {
     await ping()
 
-    const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
+    const client = new MeiliSearch({ host: 'http://localhost:7700' })
 
     let index: Index<Hentai>
     try {
@@ -80,28 +84,31 @@ const createClient = async () => {
         index = client.index('hentai')
 
         await index.updateSettings({
+            displayedAttributes: ['id'],
             sortableAttributes: ['id'],
-            searchableAttributes: ['tags', 'title']
+            searchableAttributes: ['tags', 'title'],
+            filterableAttributes: ['tags'],
+            rankingRules: [
+                'words',
+                'id:desc',
+                'attribute',
+                'proximity',
+                'exactness',
+                'typo'
+            ],
+            synonyms: {
+                yaoi: ['males only'],
+                yuri: ['females only']
+            }
         })
-
-        await index.updateRankingRules([
-            'words',
-            'sort',
-            'attribute',
-            'proximity',
-            'exactness',
-            'typo'
-        ])
-
-        await index.updateFilterableAttributes(['tags'])
     }
 
-    const importing: Promise<EnqueuedTask>[] = []
+    const searchables: Promise<Hentai[]>[] = []
 
     // Index from newest to oldest
     for (let i = 20; i > 1; i--)
-        importing.push(
-            new Promise<EnqueuedTask>(async (done) => {
+        searchables.push(
+            new Promise<Hentai[]>(async (done) => {
                 try {
                     const file = await readFile(
                         resolve(root, `./data/searchable${i}.json`),
@@ -110,7 +117,7 @@ const createClient = async () => {
                         }
                     )
 
-                    done(await index.addDocuments(JSON.parse(file)))
+                    done(JSON.parse(file))
                 } catch (err) {
                     console.log(`Unable to parse JSON at searchable${i}.json`)
                     console.log(err)
@@ -121,81 +128,57 @@ const createClient = async () => {
             })
         )
 
-    const tasks = await Promise.all(importing)
+    const searchable = (await Promise.all(searchables)).reduce((a, b) =>
+        a.concat(b)
+    )
+
+    const task = await index.addDocuments(searchable, {
+        primaryKey: 'id'
+    })
 
     const signal = setInterval(() => {
         console.log('Indexing...')
     }, 60000)
 
+    console.log('Start Importing...')
+    await client.waitForTask(task.uid, {
+        intervalMs: 10 * 1000,
+        timeOutMs: 5 * 60 * 1000
+    })
+
+    console.log('Done Importing...')
     console.log('Start Indexing...')
     await client.waitForTasks(
-        tasks.map(({ uid }) => uid),
-        {
-            intervalMs: 10 * 1000,
-            timeOutMs: 5 * 60 * 1000
-        }
+        (await client.getTasks()).results.map((x) => x.uid)
     )
 
     clearTimeout(signal)
     console.log('Done Indexing')
-
-    // For any possible size increase after search
-    console.log('Perform search warm up')
-
-    await index.search('yuri', {
-        limit: 25
-    })
-
-    await index.search('yuri', {
-        offset: 2,
-        limit: 25,
-        filter: '(tags != "yaoi") AND (tags != "yuri or ice") AND (tags != "yuuri") AND (tags != "males only")'
-    })
-
-    await index.search('blue archive', {
-        offset: 2,
-        limit: 25
-    })
-
-    await index.search('azur lane', {
-        limit: 25
-    })
-
-    await index.search('arknights', {
-        offset: 3,
-        limit: 25
-    })
-
-    await index.search('touhou', {
-        limit: 25
-    })
-
-    console.log('Done warming up')
 
     process.exit(0)
 }
 
 createClient()
 
-const updateIndex = async () => {
-    const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
-    const index = client.index('hentai')
+// const updateIndex = async () => {
+//     const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
+//     const index = client.index('hentai')
 
-    const resetter = await index.resetRankingRules()
-    await client.waitForTasks([resetter.uid])
+//     const resetter = await index.resetRankingRules()
+//     await client.waitForTasks([resetter.uid])
 
-    const task = await index.updateRankingRules([
-        'words',
-        'sort',
-        'attribute',
-        'proximity',
-        'exactness',
-        'typo'
-    ])
+//     const task = await index.updateRankingRules([
+//         'words',
+//         'id:desc',
+//         'attribute',
+//         'proximity',
+//         'exactness',
+//         'typo'
+//     ])
 
-    await client.waitForTasks([task.uid])
+//     await client.waitForTasks([task.uid])
 
-    console.log('Update Index')
-}
+//     console.log('Update Index')
+// }
 
 // updateIndex()

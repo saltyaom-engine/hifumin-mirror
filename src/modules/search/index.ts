@@ -7,9 +7,7 @@ import meilisearch from '@services/meilisearch'
 const base: FastifyPluginCallback = (app, _, done) => {
     app.get<SearchHandler>(
         '/:keyword/:batch',
-        async ({ params: { keyword, batch } }, res) => {
-            const client = await meilisearch
-
+        async ({ meilisearch: client, params: { keyword, batch } }, res) => {
             if (isNaN(+batch) || batch < 1) return res.code(400).send([])
 
             if (batch > 1_000_000) return res.code(400).send([])

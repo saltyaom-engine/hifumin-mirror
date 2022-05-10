@@ -35,11 +35,12 @@ const createClient = async (): Promise<Index<Hentai>> => {
     await ping()
 
     console.log('Connected to Meilisearch')
-    const client = new MeiliSearch({ host: 'http://0.0.0.0:7700' })
+    const client = new MeiliSearch({ host: 'http://localhost:7700' })
 
-    return await client.getIndex('hentai')
+    const index = await client.getIndex('hentai')
+    console.log('Retrieved Index')
+
+    return index
 }
 
-const meilisearch = createClient()
-
-export default meilisearch
+export default createClient

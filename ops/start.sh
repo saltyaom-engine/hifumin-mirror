@@ -1,5 +1,5 @@
 #!/bin/bash
-./meilisearch --no-analytics > /dev/null 2>&1 &
+./meilisearch --no-analytics --max-indexing-memory 1.2Gb --db-path ./data.ms > /dev/null 2>&1 &
 
 node build
 

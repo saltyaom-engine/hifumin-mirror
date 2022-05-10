@@ -77,6 +77,7 @@ COPY ./ops/parallel.sh .
 COPY ./ops/start.sh .
 
 RUN chmod 555 ./meilisearch
+RUN chmod 555 ./parallel.sh
 
 ENV NODE_ENV production
 
