@@ -15,6 +15,11 @@ const PARALLEL_REQUESTS: usize = 25;
 
 pub async fn get_nhentais_by_id(id: Vec<u32>) -> Vec<NHentai> {
     let limit = id.len();
+
+    if limit == 0 {
+        return vec![]
+    }
+
     let (tx, mut rx) = tokio::sync::mpsc::channel::<NHentai>(limit);
 
     stream::iter(id)
@@ -82,9 +87,7 @@ pub async fn internal_get_nhentai_by_id(id: u32, channel: NhqlChannel) -> Option
         return None;
     }
 
-    if let Ok(nhentai) =
-        get::<InternalNHentai>(format!("https://nhentai.net/api/gallery/{}", id)).await
-    {
+    if let Ok(nhentai) = get::<InternalNHentai>(format!("https://nhentai.net/api/gallery/{}", id)).await {
         return Some(nhentai);
     }
 
@@ -155,6 +158,14 @@ pub async fn search_nhentai(
                         channel,
                     })
                     .collect(),
+            };
+        }
+
+        if channel == NhqlChannel::Hifumin && hentais.len() == 0 {
+            return NHentaiGroup {
+                num_pages: None,
+                per_page: Some(25),
+                result: vec![],
             };
         }
     }
