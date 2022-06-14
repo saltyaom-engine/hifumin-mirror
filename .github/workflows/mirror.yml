@@ -134,7 +134,7 @@ jobs:
       run: docker push $IMAGE_NAME
 
     - name: Deploy Docker image
-      run: gcloud beta run deploy ${{ secrets.SIRIN }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 2Gi --timeout 40 --allow-unauthenticated --vpc-connector ${{ secrets.GCP_VPC_CONNECTOR }} --vpc-egress all-traffic --ingress internal-and-cloud-load-balancing --execution-environment gen2
+      run: gcloud beta run deploy ${{ secrets.SIRIN }} --image $IMAGE_NAME --region asia-southeast1 --platform managed --port 8080 --concurrency 1000 --min-instances 0 --max-instances 300 --memory 2Gi --timeout 40 --allow-unauthenticated --vpc-egress all-traffic --ingress internal-and-cloud-load-balancing --execution-environment gen2
 
   akashic-deploy:
     name: Deploy Akashic to Cloud Run
