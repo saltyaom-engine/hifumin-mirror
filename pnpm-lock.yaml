@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   '@types/node': ^17.0.8
@@ -23,7 +23,7 @@ dependencies:
 
 devDependencies:
   '@types/node': 17.0.8
-  ts-node: 10.4.0_faf01e1d5a40372a98081522dcafc186
+  ts-node: 10.4.0_7lyb4hk2ia3svgaicurnzl6bqy
   typescript: 4.5.4
 
 packages:
@@ -1001,7 +1001,7 @@ packages:
     resolution: {integrity: sha1-gYT9NH2snNwYWZLzpmIuFLnZq2o=}
     dev: false
 
-  /ts-node/10.4.0_faf01e1d5a40372a98081522dcafc186:
+  /ts-node/10.4.0_7lyb4hk2ia3svgaicurnzl6bqy:
     resolution: {integrity: sha512-g0FlPvvCXSIO1JDF6S232P5jPYqBkRL9qly81ZgAOSU7rwI0stphCgd2kLiCrU9DjQCrJMWEqcNSjQL02s6d8A==}
     hasBin: true
     peerDependencies:
