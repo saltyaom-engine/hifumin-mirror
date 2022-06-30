@@ -135,14 +135,14 @@ jobs:
       run: docker tag sirin ghcr.io/${{ github.repository_owner }}/sirin:latest
 
     - name: Push Docker image
-      run: docker push ghcr.io/${{ github.repository_owner }}/sirin@${{ steps.docker_build.outputs.digest }}:latest
+      run: docker push ghcr.io/${{ github.repository_owner }}/sirin:latest
 
     - uses: deploys-app/deploys-action@v1
       with:
         project: hifumin
         location: gke.cluster-rcf2
         name: sirin
-        image: ghcr.io/${{ github.repository_owner }}/sirin@${{ steps.docker_build.outputs.digest }}
+        image: ghcr.io/${{ github.repository_owner }}/sirin:latest
       env:
         DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
         DEPLOYS_AUTH_PASS: ${{ secrets.DEPLOYS_AUTH_PASS }}
@@ -224,14 +224,14 @@ jobs:
       run: docker tag akashic ghcr.io/${{ github.repository_owner }}/akashic:latest
 
     - name: Push Docker image
-      run: docker push ghcr.io/${{ github.repository_owner }}/akashic@${{ steps.docker_build.outputs.digest }}:latest
+      run: docker push ghcr.io/${{ github.repository_owner }}/akashic:latest
 
     - uses: deploys-app/deploys-action@v1
       with:
         project: hifumin
         location: gke.cluster-rcf2
         name: akashic
-        image: ghcr.io/${{ github.repository_owner }}/akashic@${{ steps.docker_build.outputs.digest }}:latest
+        image: ghcr.io/${{ github.repository_owner }}/akashic:latest
       env:
         DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
         DEPLOYS_AUTH_PASS: ${{ secrets.DEPLOYS_AUTH_PASS }}
