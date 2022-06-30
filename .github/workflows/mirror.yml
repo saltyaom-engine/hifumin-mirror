@@ -136,6 +136,8 @@ jobs:
         location: gke.cluster-rcf2
         name: sirin
         image: ghcr.io/${{ github.repository_owner }}/sirin
+        minReplicas: 2
+        maxReplicas: 10
       env:
         DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
         DEPLOYS_AUTH_PASS: ${{ secrets.DEPLOYS_AUTH_PASS }}
@@ -209,6 +211,8 @@ jobs:
         location: gke.cluster-rcf2
         name: akashic
         image: ghcr.io/${{ github.repository_owner }}/akashic:latest
+        minReplicas: 2
+        maxReplicas: 10
       env:
         DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
         DEPLOYS_AUTH_PASS: ${{ secrets.DEPLOYS_AUTH_PASS }}
