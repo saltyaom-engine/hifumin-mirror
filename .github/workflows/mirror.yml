@@ -70,12 +70,12 @@ jobs:
   #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   #         MESSAGE: "mirror"
 
-  sirin-deploy:
-    name: Deploy Sirin to deploys.app
+  deploy:
+    name: Deploy Seele to deploys.app
     needs: [mirror]
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/sirin-3rd
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/seele
 
     steps:
     - uses: actions/setup-node@v2
@@ -85,33 +85,30 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v2
 
-    - run: npx degit https://github.com/saltyaom/sirin sirin
-    - run: mkdir tmp && mkdir data
+    - run: npx degit https://github.com/saltyaom/seele seele
+    - run: mkdir data && mkdir seele/ops/setup/data
 
     - run: ls
-    - run: mv artifact-*/*.zip tmp
+    - run: mv artifact-*/*.zip data
 
     - name: unzip artifact
       run: unzip -o '*.zip'
-      working-directory: ./tmp
+      working-directory: ./data
 
-    - run: mv */searchable*.json ../data
-      working-directory: ./tmp
-
-    - run: rm -rf tmp
-    - run: mv data sirin/ops/setup/data
+    - run: mv */searchable*.json ../seele/ops/setup/data
+      working-directory: ./data
 
     - run: rm .gitignore && pwd && ls
-      working-directory: ./sirin
+      working-directory: ./seele
 
     - name: Push
       uses: s0/git-publish-subdir-action@develop
       env:
         REPO: self
-        FOLDER: sirin
-        BRANCH: sirin
+        FOLDER: seele
+        BRANCH: seele
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MESSAGE: "Sirin"
+        MESSAGE: "Seele"
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v1
@@ -121,11 +118,11 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Docker image
-      run: docker build -t sirin .
-      working-directory: ./sirin
+      run: docker build -t seele .
+      working-directory: ./seele
 
     - name: Tag Docker image
-      run: docker tag sirin $IMAGE_NAME
+      run: docker tag seele $IMAGE_NAME
 
     - name: Push Docker image
       run: docker push $IMAGE_NAME
@@ -134,8 +131,8 @@ jobs:
       with:
         project: hifumin
         location: gke.cluster-rcf2
-        name: sirin-3rd
-        image: ghcr.io/${{ github.repository_owner }}/sirin-3rd
+        name: seele
+        image: ghcr.io/${{ github.repository_owner }}/seele
         minReplicas: 2
         maxReplicas: 10
       env:

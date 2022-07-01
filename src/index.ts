@@ -26,7 +26,7 @@ const getLatest = async (
     })
 
     try {
-        return 500
+        return 200
 
         // const firstCover = (
         //     await page.waitForSelector(
