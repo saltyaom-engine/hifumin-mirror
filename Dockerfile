@@ -52,7 +52,7 @@ COPY ops/setup/Cargo.lock Cargo.lock
 COPY --from=meilisearch /home/meilisearch ./meilisearch
 RUN chmod 747 ./meilisearch
 
-RUN cargo run
+RUN cargo run --release
 
 # * --- Running Stage ---
 FROM debian:11.3

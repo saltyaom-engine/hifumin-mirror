@@ -59,7 +59,7 @@ lazy_static! {
 )]
 pub async fn search<'a>(engine: &Index, keyword: String, batch: usize) -> Vec<u32> {
     // Limitation of Meilisearch
-    if batch > 40 || batch < 1 { 
+    if batch > 40 {         
         return vec![] 
     }
 
@@ -67,14 +67,14 @@ pub async fn search<'a>(engine: &Index, keyword: String, batch: usize) -> Vec<u3
         Query::new(engine)
             .with_query(&keyword)
             .with_limit(25)
-            .with_offset(batch * 25)
+            .with_offset((batch - 1) * 25)
             .with_filter(filter)
             .build()
     } else {
         Query::new(engine)
             .with_query(&keyword)
             .with_limit(25)
-            .with_offset(batch * 25)
+            .with_offset((batch - 1) * 25)
             .build()
     };
 
