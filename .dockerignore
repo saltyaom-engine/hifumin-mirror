@@ -5,6 +5,4 @@ Dockerfile
 .dockerignore
 data.ms
 target
-.swc
-node_modules
-build
+meilisearch

@@ -1,86 +1,76 @@
-# * --- Compile Meilisearch from source ---
-FROM getmeili/meilisearch:v0.27.0 as meilisearch 
+# * --- Meilisearch from source ---
+FROM alpine:3.16 as meilisearch
 
-RUN cp /bin/meilisearch /home/meilisearch
+WORKDIR /home
 
-# * --- Node Builder
-FROM node:16-alpine3.14 as builder
+RUN apk add curl
 
-WORKDIR /usr/app
+RUN curl -L https://install.meilisearch.com | sh
 
-RUN npm install -g pnpm
+# * --- Build Stage ---
+FROM rust:1.62-slim-bullseye AS builder
+ENV PKG_CONFIG_ALLOW_CROSS=1
 
-COPY package.json .
-COPY pnpm-lock.yaml .
+WORKDIR /usr/src/
 
-RUN pnpm install --frozen-lockfile
+# Setup tools for building
+RUN apt update
+RUN apt install pkg-config libssl-dev -y
 
-COPY . .
+# ? Create dummy project for package installation caching
+RUN USER=root cargo new app
+WORKDIR /usr/src/app
 
-RUN pnpm build
+# Build project
+COPY src src
+COPY Cargo.toml Cargo.toml
+COPY Cargo.lock Cargo.lock
 
-# * ====================
-FROM node:16-alpine3.14 as modules
+RUN cargo build --release
 
-WORKDIR /usr/app
+# ? --- Indexer ---
+FROM rust:1.62-slim-bullseye AS indexer
+ENV PKG_CONFIG_ALLOW_CROSS=1
 
-RUN apk add --no-cache bash curl libgcc
+WORKDIR /usr/src/
 
-RUN npm install -g pnpm
+# Setup tools for building
+# RUN apk add --no-cache musl-dev ca-certificates cmake musl-utils libressl-dev openssl-dev zlib
+RUN apt update
+RUN apt install pkg-config libssl-dev -y
 
-COPY package.json .
-COPY pnpm-lock.yaml .
+# ? Create dummy project for package installation caching
+RUN USER=root cargo new app
+WORKDIR /usr/src/app
 
-RUN pnpm install --frozen-lockfile --production
-RUN pnpm prune --production
+# Build project
+COPY ops/setup/data data
+COPY ops/setup/src src
+COPY ops/setup/Cargo.toml Cargo.toml
+COPY ops/setup/Cargo.lock Cargo.lock
 
-# * ====================
-FROM node:16-alpine3.14 as search-index
+COPY --from=meilisearch /home/meilisearch ./meilisearch
+RUN chmod 747 ./meilisearch
 
-WORKDIR /usr/app
+RUN cargo run
 
-RUN apk add --no-cache bash curl libgcc
+# * --- Running Stage ---
+FROM debian:11.3
 
-RUN npm install -g pnpm
+RUN apt update
+RUN apt install pkg-config libssl-dev -y
 
-COPY package.json .
-COPY pnpm-lock.yaml .
+WORKDIR /home
 
-RUN pnpm install --frozen-lockfile
+COPY --from=builder /usr/src/app/target/release/sirin ./sirin
+COPY --from=meilisearch /home/meilisearch ./meilisearch
+COPY --from=indexer /usr/src/app/data.ms ./data.ms
 
-COPY ops/setup.ts .
-COPY tsconfig.json .
-COPY data data
-
-COPY --from=meilisearch /home/meilisearch meilisearch
+COPY ops/start.sh start.sh
 
 RUN chmod 747 ./meilisearch
-RUN pnpm ts-node setup.ts
-
-# * ====================
-FROM node:16-alpine3.14
-
-WORKDIR /usr/app/
-
-RUN apk add --no-cache bash curl libgcc
-
-COPY --from=modules /usr/app/node_modules node_modules
-COPY --from=builder /usr/app/build build
-COPY --from=meilisearch /home/meilisearch meilisearch
-COPY --from=search-index /usr/app/data.ms data.ms
-COPY package.json .
-
-# COPY ./ops/varnish /etc/default/varnish
-# COPY ./ops/default.vcl /etc/varnish/default.vcl
-# COPY ./ops/default.conf /etc/nginx/conf.d/default.conf
-COPY ./ops/parallel.sh .
-COPY ./ops/start.sh .
-
-RUN chmod 555 ./meilisearch
-RUN chmod 555 ./parallel.sh
-
-ENV NODE_ENV production
+RUN chmod 747 ./start.sh
 
 EXPOSE 8080
 
-CMD ["/bin/bash", "./start.sh"]
+CMD ["./start.sh"]
