@@ -48,34 +48,34 @@ jobs:
           name: artifact-${{ matrix.ci_node_index }}
           path: data-${{ matrix.ci_node_index }}.zip
 
-  push:
-    needs: [mirror]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
+  # push:
+  #   needs: [mirror]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download artifact
+  #       uses: actions/download-artifact@v2
 
-      - name: unzip artifact
-        run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
+  #     - name: unzip artifact
+  #       run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
 
-      - run: mkdir data
-      - run: find . -name '*.json' -exec mv -nt data {} +
+  #     - run: mkdir data
+  #     - run: find . -name '*.json' -exec mv -nt data {} +
   
-      - name: Push
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: generated
-          FOLDER: data
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "mirror"
+  #     - name: Push
+  #       uses: s0/git-publish-subdir-action@develop
+  #       env:
+  #         REPO: self
+  #         BRANCH: generated
+  #         FOLDER: data
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         MESSAGE: "mirror"
 
   sirin-deploy:
     name: Deploy Sirin to deploys.app
     needs: [mirror]
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/sirin
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/sirin-3rd
 
     steps:
     - uses: actions/setup-node@v2
@@ -99,7 +99,7 @@ jobs:
       working-directory: ./tmp
 
     - run: rm -rf tmp
-    - run: mv data sirin/data
+    - run: mv data sirin/ops/setup/data
 
     - run: rm .gitignore && pwd && ls
       working-directory: ./sirin
@@ -134,85 +134,85 @@ jobs:
       with:
         project: hifumin
         location: gke.cluster-rcf2
-        name: sirin
-        image: ghcr.io/${{ github.repository_owner }}/sirin
+        name: sirin-3rd
+        image: ghcr.io/${{ github.repository_owner }}/sirin-3rd
         minReplicas: 2
         maxReplicas: 10
       env:
         DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
         DEPLOYS_AUTH_PASS: ${{ secrets.DEPLOYS_AUTH_PASS }}
 
-  akashic-deploy:
-    name: Deploy Akashic to deploys.app
-    needs: [mirror]
-    runs-on: ubuntu-latest
-    env:
-      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/akashic:latest
+  # akashic-deploy:
+  #   name: Deploy Akashic to deploys.app
+  #   needs: [mirror]
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/akashic:latest
 
-    steps:
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '16'
+  #   steps:
+  #   - uses: actions/setup-node@v2
+  #     with:
+  #       node-version: '16'
 
-    - name: Download artifact
-      uses: actions/download-artifact@v2
+  #   - name: Download artifact
+  #     uses: actions/download-artifact@v2
 
-    - run: npx degit https://github.com/saltyaom/akashic akashic
-    - run: mkdir tmp && mkdir data
+  #   - run: npx degit https://github.com/saltyaom/akashic akashic
+  #   - run: mkdir tmp && mkdir data
 
-    - run: ls
-    - run: mv artifact-*/*.zip tmp
+  #   - run: ls
+  #   - run: mv artifact-*/*.zip tmp
 
-    - name: unzip artifact
-      run: unzip -o '*.zip'
-      working-directory: ./tmp
+  #   - name: unzip artifact
+  #     run: unzip -o '*.zip'
+  #     working-directory: ./tmp
 
-    - run: rm -f */searchable*.json
-      working-directory: ./tmp
+  #   - run: rm -f */searchable*.json
+  #     working-directory: ./tmp
 
-    - run: find . -name '*.json' -exec mv -nt ../data {} +
-      working-directory: ./tmp
+  #   - run: find . -name '*.json' -exec mv -nt ../data {} +
+  #     working-directory: ./tmp
 
-    - run: rm -rf tmp
-    - run: mv data akashic/data
+  #   - run: rm -rf tmp
+  #   - run: mv data akashic/data
 
-    - run: rm .gitignore && pwd && ls
-      working-directory: ./akashic
+  #   - run: rm .gitignore && pwd && ls
+  #     working-directory: ./akashic
 
-    - name: Push
-      uses: s0/git-publish-subdir-action@develop
-      env:
-        REPO: self
-        FOLDER: akashic
-        BRANCH: akashic
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MESSAGE: "Akashic"
+  #   - name: Push
+  #     uses: s0/git-publish-subdir-action@develop
+  #     env:
+  #       REPO: self
+  #       FOLDER: akashic
+  #       BRANCH: akashic
+  #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       MESSAGE: "Akashic"
 
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Login to GitHub Container Registry
+  #     uses: docker/login-action@v1
+  #     with:
+  #       registry: ghcr.io
+  #       username: ${{ github.repository_owner }}
+  #       password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build Docker image
-      run: docker build -t akashic .
-      working-directory: ./akashic
+  #   - name: Build Docker image
+  #     run: docker build -t akashic .
+  #     working-directory: ./akashic
 
-    - name: Tag Docker image
-      run: docker tag akashic $IMAGE_NAME
+  #   - name: Tag Docker image
+  #     run: docker tag akashic $IMAGE_NAME
 
-    - name: Push Docker image
-      run: docker push $IMAGE_NAME
+  #   - name: Push Docker image
+  #     run: docker push $IMAGE_NAME
 
-    - uses: deploys-app/deploys-action@v1
-      with:
-        project: hifumin
-        location: gke.cluster-rcf2
-        name: akashic
-        image: ghcr.io/${{ github.repository_owner }}/akashic:latest
-        minReplicas: 2
-        maxReplicas: 10
-      env:
-        DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
-        DEPLOYS_AUTH_PASS: ${{ secrets.DEPLOYS_AUTH_PASS }}
+  #   - uses: deploys-app/deploys-action@v1
+  #     with:
+  #       project: hifumin
+  #       location: gke.cluster-rcf2
+  #       name: akashic
+  #       image: ghcr.io/${{ github.repository_owner }}/akashic:latest
+  #       minReplicas: 2
+  #       maxReplicas: 10
+  #     env:
+  #       DEPLOYS_AUTH_USER: ${{ secrets.DEPLOYS_AUTH_USER }}
+  #       DEPLOYS_AUTH_PASS: ${{ secrets.DEPLOYS_AUTH_PASS }}
