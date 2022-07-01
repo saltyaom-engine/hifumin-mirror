@@ -98,6 +98,8 @@ jobs:
     - run: mv */searchable*.json ../seele/ops/setup/data
       working-directory: ./data
 
+    - run: mv data seele/data
+
     - run: rm .gitignore && pwd && ls
       working-directory: ./seele
 
