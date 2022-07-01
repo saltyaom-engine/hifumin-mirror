@@ -89,16 +89,16 @@ jobs:
     - run: mkdir data && mkdir seele/ops/setup/data
 
     - run: ls
-    - run: mv artifact-*/*.zip data
+    - run: mv artifact-*/*.zip tmp
 
     - name: unzip artifact
       run: unzip -o '*.zip'
-      working-directory: ./data
+      working-directory: ./tmp
 
     - run: mv */searchable*.json ../seele/ops/setup/data
-      working-directory: ./data
+      working-directory: ./tmp
 
-    - run: mv data seele/data
+    - run: mv tmp/data seele/data
 
     - run: rm .gitignore && pwd && ls
       working-directory: ./seele
