@@ -48,34 +48,34 @@ jobs:
           name: artifact-${{ matrix.ci_node_index }}
           path: data-${{ matrix.ci_node_index }}.zip
 
-  # push:
-  #   needs: [mirror]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v2
+  push:
+    needs: [mirror]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
 
-  #     - name: unzip artifact
-  #       run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
+      - name: unzip artifact
+        run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
 
-  #     - run: mkdir data
-  #     - run: find . -name '*.json' -exec mv -nt data {} +
+      - run: mkdir data
+      - run: find . -name '*.json' -exec mv -nt data {} +
   
-  #     - name: Push
-  #       uses: s0/git-publish-subdir-action@develop
-  #       env:
-  #         REPO: self
-  #         BRANCH: generated
-  #         FOLDER: data
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         MESSAGE: "mirror"
+      - name: Push
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: generated
+          FOLDER: data
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "mirror"
 
   deploy:
     name: Deploy Seele to deploys.app
     needs: [mirror]
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/seele-dev
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/seele
 
     steps:
     - uses: actions/setup-node@v2
@@ -85,7 +85,7 @@ jobs:
     - name: Download artifact
       uses: actions/download-artifact@v2
 
-    - run: npx degit https://github.com/saltyaom/seele#x64-musl seele
+    - run: npx degit https://github.com/saltyaom/seele seele
     - run: mkdir tmp && mkdir seele/ops/setup/data
 
     - run: ls
@@ -133,8 +133,8 @@ jobs:
       with:
         project: hifumin
         location: gke.cluster-rcf2
-        name: seele-dev
-        image: ghcr.io/${{ github.repository_owner }}/seele-dev
+        name: seele
+        image: ghcr.io/${{ github.repository_owner }}/seele
         minReplicas: 2
         maxReplicas: 10
       env:

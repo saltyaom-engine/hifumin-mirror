@@ -26,30 +26,28 @@ const getLatest = async (
     })
 
     try {
-        return 200
+        const firstCover = (
+            await page.waitForSelector(
+                '#content > .index-container:nth-child(3) > .gallery > .cover',
+                {
+                    timeout: 10000
+                }
+            )
+        )?.asElement()
+        if (!firstCover) throw new Error("Couldn't find first cover")
 
-    //     const firstCover = (
-    //         await page.waitForSelector(
-    //             '#content > .index-container:nth-child(3) > .gallery > .cover',
-    //             {
-    //                 timeout: 10000
-    //             }
-    //         )
-    //     )?.asElement()
-    //     if (!firstCover) throw new Error("Couldn't find first cover")
+        const url = await firstCover.getProperty('href')
 
-    //     const url = await firstCover.getProperty('href')
+        const id = url
+            .toString()
+            .split('/')
+            .reverse()
+            .find((x) => x)
 
-    //     const id = url
-    //         .toString()
-    //         .split('/')
-    //         .reverse()
-    //         .find((x) => x)
+        await new Promise((resolve) => setTimeout(resolve, 3000))
 
-    //     await new Promise((resolve) => setTimeout(resolve, 3000))
-
-    //     await page.close()
-    //     return id ? parseInt(id) : new Error("Couldn't find id")
+        await page.close()
+        return id ? parseInt(id) : new Error("Couldn't find id")
     } catch (err) {
         if (iteration < 5) {
             await new Promise((resolve) => setTimeout(resolve, 3000 * iteration))
