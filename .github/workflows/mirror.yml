@@ -9,44 +9,44 @@ on:
 
 jobs:
 
-  mirror:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # Free plan limit to 20 concurrent job
-        ci_node_total: [20]
-        ci_node_index: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-    steps:
-      - uses: actions/checkout@v2
+  # mirror:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       # Free plan limit to 20 concurrent job
+  #       ci_node_total: [20]
+  #       ci_node_index: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: '16'
 
-      - uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7.5.0
-          run_install: |
-            - recursive: true
-              args: [--frozen-lockfile, --strict-peer-dependencies]
+  #     - uses: pnpm/action-setup@v2.2.2
+  #       with:
+  #         version: 7.5.0
+  #         run_install: |
+  #           - recursive: true
+  #             args: [--frozen-lockfile, --strict-peer-dependencies]
 
-      - run: pnpm build
+  #     - run: pnpm build
 
-      - name: Mirror
-        uses: mujo-code/puppeteer-headful@v2
-        env:
-          WORKER_COUNT: ${{ matrix.ci_node_total }}
-          WORKER_INDEX: ${{ matrix.ci_node_index }}
-        with:
-          args: node dist/index.js
+  #     - name: Mirror
+  #       uses: mujo-code/puppeteer-headful@v2
+  #       env:
+  #         WORKER_COUNT: ${{ matrix.ci_node_total }}
+  #         WORKER_INDEX: ${{ matrix.ci_node_index }}
+  #       with:
+  #         args: node dist/index.js
 
-      - name: Zip artifact
-        run: zip data-${{ matrix.ci_node_index }}.zip data/*
+  #     - name: Zip artifact
+  #       run: zip data-${{ matrix.ci_node_index }}.zip data/*
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: artifact-${{ matrix.ci_node_index }}
-          path: data-${{ matrix.ci_node_index }}.zip
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         name: artifact-${{ matrix.ci_node_index }}
+  #         path: data-${{ matrix.ci_node_index }}.zip
 
   # push:
   #   needs: [mirror]
