@@ -81,12 +81,12 @@ jobs:
     - run: npx degit https://github.com/saltyaom-engine/hifumin-mirror#generated data
 
     - name: Zip artifact
-      run: zip -r data.zip data
+      run: zip -r data-1.zip data
 
     - uses: actions/upload-artifact@v2
       with:
         name: artifact
-        path: data.zip
+        path: data-1.zip
 
   deploy:
     name: Deploy Seele to deploys.app
