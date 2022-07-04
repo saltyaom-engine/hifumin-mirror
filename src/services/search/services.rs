@@ -41,6 +41,10 @@ pub async fn wait_for_search_engine() {
             }
         }
     }
+
+    // Boot up search instance
+    search("yuri".to_owned(), 1).await;
+    search("glasses".to_owned(), 1).await;
 }
 
 lazy_static! {
