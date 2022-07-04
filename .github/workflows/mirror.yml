@@ -8,6 +8,7 @@ on:
     - cron: '0 */9 * * *'
 
 jobs:
+
   mirror:
     runs-on: ubuntu-latest
     strategy:
@@ -47,31 +48,50 @@ jobs:
           name: artifact-${{ matrix.ci_node_index }}
           path: data-${{ matrix.ci_node_index }}.zip
 
-  push:
-    needs: [mirror]
+  # push:
+  #   needs: [mirror]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download artifact
+  #       uses: actions/download-artifact@v2
+
+  #     - name: unzip artifact
+  #       run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
+
+  #     - run: mkdir data
+  #     - run: find . -name '*.json' -exec mv -nt data {} +
+  
+  #     - name: Push
+  #       uses: s0/git-publish-subdir-action@develop
+  #       env:
+  #         REPO: self
+  #         BRANCH: generated
+  #         FOLDER: data
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         MESSAGE: "mirror"
+
+  remember:
+    name: Read from backup
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
 
-      - name: unzip artifact
-        run: find . -name '*.zip' -exec sh -c 'unzip -d `dirname {}` {}' ';'
+    - run: npx degit https://github.com/saltyaom-engine/hifumin-mirror#generated data
 
-      - run: mkdir data
-      - run: find . -name '*.json' -exec mv -nt data {} +
-  
-      - name: Push
-        uses: s0/git-publish-subdir-action@develop
-        env:
-          REPO: self
-          BRANCH: generated
-          FOLDER: data
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "mirror"
+    - name: Zip artifact
+      run: zip data.zip data/*
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: artifact
+        path: data.zip
 
   deploy:
     name: Deploy Seele to deploys.app
-    needs: [mirror]
+    # needs: [mirror]
+    needs: [remember]
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/seele
